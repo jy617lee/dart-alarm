@@ -1,16 +1,46 @@
-"""DART OpenAPI 폴링 스크립트 - 키워드 매칭 공시를 결과 파일에 저장한다."""
+"""DART OpenAPI 폴링 스크립트 - 신규 공시를 필터링하여 콘솔에 출력한다."""
 
-import datetime
+from typing import Optional
 
 import dart_api
+import state_store
 
 
 def run() -> None:
     """단일 실행 진입점. 인프라단에서 반복 호출된다."""
     api_key = dart_api.load_api_key()
-    bgn_date = datetime.date.today().strftime("%Y%m%d")
-    items = dart_api.fetch_disclosures(api_key, bgn_date)
+    state = state_store.load_state()
+    last_rcept_no: Optional[str] = state.get("last_rcept_no")
+
+    # bgn_date: last_rcept_no 앞 8자리(YYYYMMDD), 없으면 오늘
+    if last_rcept_no:
+        bgn_date = last_rcept_no[:8]
+    else:
+        import datetime
+
+        bgn_date = datetime.date.today().strftime("%Y%m%d")
+
+    items = dart_api.fetch_disclosures(api_key, bgn_date, last_rcept_no)
+
+    if last_rcept_no is None:
+        # 첫 실행: max(rcept_no)를 저장하고 종료 (알람 없음)
+        if items:
+            new_last = max(i["rcept_no"] for i in items)
+            state_store.save_state({"last_rcept_no": new_last})
+            print(f"[INFO] 첫 실행 완료. last_rcept_no={new_last} 저장.")
+        else:
+            print("[INFO] 첫 실행 완료. 공시 없음.")
+        return
+
+    # 두 번째 실행부터: 신규 공시 출력 후 state 업데이트
     dart_api.print_disclosures(items)
+
+    if items:
+        new_last = max(i["rcept_no"] for i in items)
+        state_store.save_state({"last_rcept_no": new_last})
+        print(f"[INFO] last_rcept_no={new_last} 업데이트 완료.")
+    else:
+        print("[INFO] 신규 공시 없음.")
 
 
 if __name__ == "__main__":  # pragma: no cover
