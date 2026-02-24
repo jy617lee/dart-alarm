@@ -22,3 +22,6 @@ results/*.md
 
 # 환경 변수
 .env
+
+# 실행 상태 (로컬 전용)
+state.json

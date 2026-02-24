@@ -2,7 +2,7 @@
 
 import os
 import time
-from typing import Any
+from typing import Any, Optional
 
 import requests
 from dotenv import load_dotenv
@@ -38,12 +38,14 @@ def load_api_key() -> str:
 
 
 # ---------------------------------------------------------------------------
-# 공시 목록 조회
+# 단일 페이지 호출
 # ---------------------------------------------------------------------------
 
 
-def fetch_disclosures(api_key: str, bgn_date: str) -> list[dict[str, Any]]:
-    """DART 공시 목록 API를 호출하고 결과를 반환한다.
+def _fetch_page(
+    api_key: str, bgn_date: str, page_no: int
+) -> list[dict[str, Any]]:
+    """DART API에서 단일 페이지를 조회하여 반환한다.
 
     - 일반 오류(status != 000): 최대 MAX_RETRIES회 재시도, 간격 RETRY_INTERVAL_SECONDS초
     - 429 Too Many Requests: Exponential Backoff (BACKOFF_BASE_SECONDS * 2^n 초 대기)
@@ -52,6 +54,7 @@ def fetch_disclosures(api_key: str, bgn_date: str) -> list[dict[str, Any]]:
         "crtfc_key": api_key,
         "bgn_de": bgn_date,
         "page_count": PAGE_SIZE,
+        "page_no": page_no,
     }
     backoff_exponent = 0
 
@@ -73,6 +76,46 @@ def fetch_disclosures(api_key: str, bgn_date: str) -> list[dict[str, Any]]:
             time.sleep(RETRY_INTERVAL_SECONDS)
 
     return []
+
+
+# ---------------------------------------------------------------------------
+# 페이지네이션 + 신규 공시 필터링
+# ---------------------------------------------------------------------------
+
+
+def fetch_disclosures(
+    api_key: str, bgn_date: str, last_rcept_no: Optional[str] = None
+) -> list[dict[str, Any]]:
+    """전체 공시를 페이지네이션으로 가져오고, last_rcept_no보다 큰 신규 공시만 반환한다.
+
+    조기 종료 조건:
+    1. 응답 공시 중 last_rcept_no보다 큰 것이 하나도 없는 경우
+    2. 응답 건수가 PAGE_SIZE 미만인 경우 (마지막 페이지)
+    """
+    all_items: list[dict[str, Any]] = []
+    page_no = 1
+
+    while True:
+        items = _fetch_page(api_key, bgn_date, page_no)
+        print(f"[INFO] page={page_no}, 응답 {len(items)}건")
+
+        if last_rcept_no is not None:
+            new_items = [i for i in items if i["rcept_no"] > last_rcept_no]
+            all_items.extend(new_items)
+
+            # 이 페이지에 신규 공시가 하나도 없으면 조기 종료
+            if not new_items:
+                break
+        else:
+            all_items.extend(items)
+
+        # 마지막 페이지 판단
+        if len(items) < PAGE_SIZE:
+            break
+
+        page_no += 1
+
+    return all_items
 
 
 # ---------------------------------------------------------------------------
