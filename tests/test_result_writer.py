@@ -11,7 +11,7 @@ def test_save_results(tmp_path: Path) -> None:
     original_dir = result_writer.RESULTS_DIR
     result_writer.RESULTS_DIR = tmp_path
     today = datetime.date(2026, 2, 24)
-    now = datetime.datetime.now()
+    now = datetime.datetime(2026, 2, 24, 15, 23, 0)
 
     matched = [
         (
@@ -30,11 +30,11 @@ def test_save_results(tmp_path: Path) -> None:
 
     try:
         result_writer.save_results(matched, today, now)
-        file_path = tmp_path / "2026-02-24.md"
+        file_path = tmp_path / "20260224_1523.md"
         assert file_path.exists()
 
         content = file_path.read_text("utf-8")
-        assert "# 2026-02-24 공시 알람 결과" in content
+        assert "# 2026-02-24 15:23 공시 알람 결과" in content
         assert "## 증설" in content
         assert "| A | 증설 계획 | https://" in content
         assert "| C | 다른 증설 | https://" in content
@@ -42,6 +42,6 @@ def test_save_results(tmp_path: Path) -> None:
         assert "| B | 수주 공시 [정정] | https://" in content
         assert "## 공개매수" in content
         assert "(없음)" in content
-        assert content.count("# 2026-02-24") == 1  # 헤더가 한 번만 있어야 함
+        assert content.count("# 2026-02-24 15:23") == 1  # 헤더가 한 번만 있어야 함
     finally:
         result_writer.RESULTS_DIR = original_dir

@@ -14,13 +14,13 @@ def save_results(
 ) -> None:
     """매칭된 공시 결과를 마크다운 파일에 기록한다."""
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    file_path = RESULTS_DIR / f"{today.strftime('%Y-%m-%d')}.md"
+    file_path = RESULTS_DIR / f"{now.strftime('%Y%m%d_%H%M')}.md"
 
     is_new = not file_path.exists()
     lines = []
 
     if is_new:
-        lines.append(f"# {today.strftime('%Y-%m-%d')} 공시 알람 결과")
+        lines.append(f"# {now.strftime('%Y-%m-%d %H:%M')} 공시 알람 결과")
 
     now_str = now.strftime("%H:%M:%S")
 
