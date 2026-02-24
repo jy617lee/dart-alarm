@@ -2,7 +2,6 @@
 
 import logging
 import sys
-from typing import Optional
 
 _logger = logging.getLogger("dart_alarm")
 
@@ -30,6 +29,6 @@ def setup_logger() -> None:
     _logger.addHandler(file_handler)
 
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger() -> logging.Logger:
     """공통 설정된 로거 반환."""
     return _logger
