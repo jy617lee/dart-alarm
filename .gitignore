@@ -25,3 +25,4 @@ results/*.md
 
 # 실행 상태 (로컬 전용)
 state.json
+/*.egg-info/
