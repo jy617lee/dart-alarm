@@ -2,6 +2,9 @@
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+py-modules = ["dart_api", "keyword_filter", "logger", "main", "result_writer", "state_store"]
+
 [project]
 name = "dart-alert"
 version = "0.1.0"
@@ -23,6 +26,7 @@ dev = [
 
 [tool.ruff]
 line-length = 88
+cache-dir = ".cache/ruff"
 
 [tool.ruff.lint]
 select = [
@@ -38,10 +42,12 @@ max-complexity = 10
 [tool.mypy]
 strict = true
 python_version = "3.11"
+cache_dir = ".cache/mypy"
 
 [tool.pytest.ini_options]
 addopts = "--cov=. --cov-fail-under=80"
 testpaths = ["tests"]
+cache_dir = ".cache/pytest"
 
 [tool.vulture]
 min_confidence = 80
