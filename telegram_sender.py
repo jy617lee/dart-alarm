@@ -97,7 +97,7 @@ def send_message(token: str, chat_id: str, text: str) -> None:
             )
         except Exception as e:
             log.warning(
-                f"텔레그램 전송 중 예외 발생" f" (시도 {attempt}/{MAX_RETRIES}): {e}"
+                f"텔레그램 전송 중 예외 발생 (시도 {attempt}/{MAX_RETRIES}): {e}"
             )
 
         if attempt < MAX_RETRIES:
