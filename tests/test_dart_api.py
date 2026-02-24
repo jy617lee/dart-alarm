@@ -147,6 +147,20 @@ def test_fetch_disclosures_stops_at_last_page() -> None:
     assert mock_page.call_count == 1
 
 
+def test_fetch_disclosures_fetches_multiple_pages() -> None:
+    """PAGE_SIZE만큼 응답이 오면 다음 페이지를 계속 요청한다."""
+    page1 = _make_items([str(i) for i in range(1, dart_api.PAGE_SIZE + 1)])  # 100건
+    page2 = _make_items(["101"])  # 1건
+
+    with patch("dart_api._fetch_page", side_effect=[page1, page2]) as mock_page:
+        result = dart_api.fetch_disclosures(
+            "key", "20260224", last_rcept_no=None
+        )
+
+    assert len(result) == dart_api.PAGE_SIZE + 1
+    assert mock_page.call_count == 2
+
+
 # ---------------------------------------------------------------------------
 # print_disclosures
 # ---------------------------------------------------------------------------
