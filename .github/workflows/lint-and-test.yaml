@@ -1,0 +1,37 @@
+name: Lint, Type Check & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-type-check-and-test:
+    name: "mypy · ruff · vulture · pytest"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Type check (mypy)
+        run: mypy main.py --strict
+
+      - name: Lint & format check (ruff)
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Dead code check (vulture)
+        run: vulture . --min-confidence 80
+
+      - name: Test & coverage (pytest)
+        run: pytest --cov=. --cov-fail-under=80
