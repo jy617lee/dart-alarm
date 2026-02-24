@@ -6,7 +6,7 @@ from typing import Any
 import logger
 import result_writer
 
-KEYWORDS = ["증설", "수주", "공개매수"]
+KEYWORDS = ["증설", "수주", "공개매수", "자사주매입", "흑자전환", "임상"]
 
 
 def filter_and_print_disclosures(
