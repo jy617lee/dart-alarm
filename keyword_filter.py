@@ -9,7 +9,9 @@ import result_writer
 KEYWORDS = ["증설", "수주", "공개매수"]
 
 
-def filter_and_print_disclosures(items: list[dict[str, Any]]) -> None:
+def filter_and_print_disclosures(
+    items: list[dict[str, Any]], last_rcept_no: str
+) -> None:
     """신규 공시에서 키워드를 매칭하고 포맷에 맞게 콘솔에 출력한다."""
     matched = []
 
@@ -47,4 +49,4 @@ def filter_and_print_disclosures(items: list[dict[str, Any]]) -> None:
         log.info(f"{i}. {corp_name} | {report_nm} | 매칭키워드: {kw_str} | {url}")
 
     # 마크다운 파일에 매칭 결과 추가 저장
-    result_writer.save_results(matched, today, now)
+    result_writer.save_results(matched, today, now, last_rcept_no)

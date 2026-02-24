@@ -40,7 +40,7 @@ def run() -> None:
             return
 
         # 두 번째 실행부터: 신규 공시 출력 후 state 업데이트
-        keyword_filter.filter_and_print_disclosures(items)
+        keyword_filter.filter_and_print_disclosures(items, last_rcept_no)
 
         if items:
             new_last = max(i["rcept_no"] for i in items)

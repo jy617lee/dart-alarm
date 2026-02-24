@@ -11,6 +11,7 @@ def save_results(
     matched: list[tuple[dict[str, Any], list[str]]],
     today: datetime.date,
     now: datetime.datetime,
+    last_rcept_no: str,
 ) -> None:
     """매칭된 공시 결과를 마크다운 파일에 기록한다."""
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -25,6 +26,8 @@ def save_results(
     now_str = now.strftime("%H:%M:%S")
 
     # 각 폴링 결과 묶음을 띄우기 위해 빈 줄 하나 추가
+    lines.append("")
+    lines.append(f"> **기준 접수 번호:** `{last_rcept_no}`")
     lines.append("")
 
     from keyword_filter import KEYWORDS

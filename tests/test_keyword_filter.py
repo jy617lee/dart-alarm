@@ -21,7 +21,7 @@ def test_filter_no_match(caplog: pytest.LogCaptureFixture) -> None:
         patch("keyword_filter.result_writer.save_results"),
     ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
-        keyword_filter.filter_and_print_disclosures(items)
+        keyword_filter.filter_and_print_disclosures(items, "20260224000000")
 
     assert "폴링 완료 - 신규 2건 중 매칭 없음" in caplog.text
 
@@ -38,7 +38,7 @@ def test_filter_with_match(caplog: pytest.LogCaptureFixture) -> None:
         patch("keyword_filter.result_writer.save_results"),
     ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
-        keyword_filter.filter_and_print_disclosures(items)
+        keyword_filter.filter_and_print_disclosures(items, "20260224000000")
 
     assert "신규 2건 중 키워드 매칭 1건" in caplog.text
     assert (
@@ -62,6 +62,6 @@ def test_filter_with_correct_tag(caplog: pytest.LogCaptureFixture) -> None:
         patch("keyword_filter.result_writer.save_results"),
     ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
-        keyword_filter.filter_and_print_disclosures(items)
+        keyword_filter.filter_and_print_disclosures(items, "20260224000000")
 
     assert "1. 네이버 | 대규모 수주 계획 [정정] | 매칭키워드: 수주 |" in caplog.text
