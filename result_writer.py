@@ -55,3 +55,20 @@ def save_results(
     # 파일의 끝에 내용 추가 (append 모드)
     with file_path.open("a", encoding="utf-8") as f:
         f.write("\n".join(lines))
+
+
+def save_error_result(now: datetime.datetime, error_msg: str) -> None:
+    """API 오류 발생 시 e_ 접두어 파일에 오류 내용을 기록한다."""
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    file_path = RESULTS_DIR / f"e_{now.strftime('%Y%m%d_%H%M')}.md"
+
+    lines = [
+        f"# {now.strftime('%Y-%m-%d %H:%M')} 공시 조회 오류",
+        "",
+        "> ⚠️ **API 오류로 인해 공시 조회에 실패했습니다.**",
+        "",
+        f"```\n{error_msg}\n```",
+    ]
+
+    with file_path.open("w", encoding="utf-8") as f:
+        f.write("\n".join(lines))

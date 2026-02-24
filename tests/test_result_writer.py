@@ -46,3 +46,22 @@ def test_save_results(tmp_path: Path) -> None:
         assert content.count("# 2026-02-24 15:23") == 1  # 헤더가 한 번만 있어야 함
     finally:
         result_writer.RESULTS_DIR = original_dir
+
+
+def test_save_error_result(tmp_path: Path) -> None:
+    """오류 발생 시 e_ 접두어 파일에 오류 내용이 기록되는지 확인한다."""
+    original_dir = result_writer.RESULTS_DIR
+    result_writer.RESULTS_DIR = tmp_path
+    now = datetime.datetime(2026, 2, 24, 15, 23, 0)
+
+    try:
+        result_writer.save_error_result(now, "DART API 최종 실패: status=100")
+        file_path = tmp_path / "e_20260224_1523.md"
+        assert file_path.exists()
+
+        content = file_path.read_text("utf-8")
+        assert "# 2026-02-24 15:23 공시 조회 오류" in content
+        assert "⚠️" in content
+        assert "DART API 최종 실패: status=100" in content
+    finally:
+        result_writer.RESULTS_DIR = original_dir

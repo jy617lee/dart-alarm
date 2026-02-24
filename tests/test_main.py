@@ -61,6 +61,7 @@ def test_run_second_execution_prints_and_updates(caplog: Any) -> None:
         patch("state_store.save_state", side_effect=lambda s: saved.update(s)),
         patch("keyword_filter.datetime") as mock_dt,
         patch("keyword_filter.result_writer.save_results"),
+        patch("keyword_filter.telegram_sender.send_alert"),
     ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         main.run()
@@ -81,6 +82,7 @@ def test_run_no_new_disclosures_does_not_update_state() -> None:
         ),
         patch("dart_api.fetch_disclosures", return_value=[]),
         patch("state_store.save_state", side_effect=lambda s: saved.append(s)),
+        patch("keyword_filter.result_writer.save_results"),
     ):
         main.run()
 
@@ -98,3 +100,45 @@ def test_run_with_exception(caplog: Any) -> None:
             main.run()
 
     assert "예기치 않은 오류 발생: 테스트 에러" in caplog.text
+
+
+def test_run_invalid_last_rcept_no(caplog: Any) -> None:
+    """잘못된 last_rcept_no를 None으로 초기화하고 첫 실행으로 캘릭다."""
+    caplog.set_level(logging.WARNING)
+
+    with (
+        patch("dart_api.load_api_key", return_value="test-key"),
+        patch(
+            "state_store.load_state",
+            return_value={"last_rcept_no": "0260223900489"},  # 13자리 잘못된 값
+        ),
+        patch("dart_api.fetch_disclosures", return_value=[]),
+        patch("state_store.save_state"),
+    ):
+        main.run()
+
+    assert "last_rcept_no 형식 이상" in caplog.text
+
+
+def test_run_api_error_saves_error_file(caplog: Any) -> None:
+    """API RuntimeError 발생 시 save_error_result를 호출하는지 확인한다."""
+    from unittest.mock import MagicMock
+
+    caplog.set_level(logging.ERROR)
+    mock_save_error = MagicMock()
+
+    with (
+        patch("dart_api.load_api_key", return_value="test-key"),
+        patch(
+            "state_store.load_state", return_value={"last_rcept_no": "20260224000005"}
+        ),
+        patch(
+            "dart_api.fetch_disclosures",
+            side_effect=RuntimeError("API 실패"),
+        ),
+        patch("main.result_writer.save_error_result", mock_save_error),
+    ):
+        main.run()
+
+    mock_save_error.assert_called_once()
+    assert "API 호출 실패" in caplog.text

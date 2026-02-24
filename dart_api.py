@@ -81,8 +81,17 @@ def _fetch_page(api_key: str, bgn_date: str, page_no: int) -> list[dict[str, Any
                 f"({attempt}/{MAX_RETRIES})"
             )
             time.sleep(RETRY_INTERVAL_SECONDS)
+        else:
+            error_msg = (
+                f"status={data.get('status')}, message={data.get('message', '')}"
+            )
+            logger.get_logger().error(
+                f"API 요청 최종 실패 (page {page_no}): {error_msg}"
+            )
+            raise RuntimeError(f"DART API 최종 실패 (page {page_no}): {error_msg}")
 
-    return []
+    # 루프를 정상 통과하면 도달 수 없는 코드이지만 타입 체커를 위해 유지
+    return []  # pragma: no cover
 
 
 # ---------------------------------------------------------------------------

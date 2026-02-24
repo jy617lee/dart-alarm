@@ -59,17 +59,19 @@ def test_fetch_page_returns_list_on_success() -> None:
 
 
 def test_fetch_page_retries_on_error() -> None:
-    """일반 오류 시 최대 MAX_RETRIES회 재시도 후 빈 리스트를 반환한다."""
+    """일반 오류 시 최대 MAX_RETRIES회 재시도 후 RuntimeError를 c1c생한다."""
+    import pytest
+
     error_payload: dict[str, Any] = {"status": "900", "list": []}
     mock_resp = _make_response(200, error_payload)
 
     with (
         patch("dart_api.requests.get", return_value=mock_resp) as mock_get,
         patch("dart_api.time.sleep"),
+        pytest.raises(RuntimeError, match="DART API 최종 실패"),
     ):
-        result = dart_api._fetch_page("test-key", "20260224", 1)
+        dart_api._fetch_page("test-key", "20260224", 1)
 
-    assert result == []
     assert mock_get.call_count == dart_api.MAX_RETRIES
 
 
