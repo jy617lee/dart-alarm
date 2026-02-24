@@ -85,3 +85,16 @@ def test_run_no_new_disclosures_does_not_update_state() -> None:
         main.run()
 
     assert saved == []
+
+
+def test_run_with_exception(caplog: Any) -> None:
+    """예기치 않은 오류가 발생하면 에러 로그를 남기고 예외를 다시 던진다."""
+    import pytest
+
+    caplog.set_level(logging.ERROR)
+
+    with patch("dart_api.load_api_key", side_effect=RuntimeError("테스트 에러")):
+        with pytest.raises(RuntimeError, match="테스트 에러"):
+            main.run()
+
+    assert "예기치 않은 오류 발생: 테스트 에러" in caplog.text
