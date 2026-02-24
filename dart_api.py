@@ -81,6 +81,11 @@ def _fetch_page(api_key: str, bgn_date: str, page_no: int) -> list[dict[str, Any
                 f"({attempt}/{MAX_RETRIES})"
             )
             time.sleep(RETRY_INTERVAL_SECONDS)
+        else:
+            logger.get_logger().error(
+                f"API 요청 최종 실패 (page {page_no}): "
+                f"status={data.get('status')}, message={data.get('message', '')}"
+            )
 
     return []
 
