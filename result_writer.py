@@ -23,8 +23,6 @@ def save_results(
     if is_new:
         lines.append(f"# {now.strftime('%Y-%m-%d %H:%M')} 공시 알람 결과")
 
-    now_str = now.strftime("%H:%M:%S")
-
     # 각 폴링 결과 묶음을 띄우기 위해 빈 줄 하나 추가
     lines.append("")
     lines.append(f"> **기준 접수 번호:** `{last_rcept_no}`")
@@ -48,7 +46,7 @@ def save_results(
                     report_nm = report_nm.replace("[기재정정]", "").strip() + " [정정]"
 
                 url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rcept_no}"
-                lines.append(f"{now_str} | {corp_name} | {report_nm} | {url}")
+                lines.append(f"{corp_name} | {report_nm} | {url}")
         else:
             lines.append("(없음)")
 

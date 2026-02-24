@@ -37,10 +37,10 @@ def test_save_results(tmp_path: Path) -> None:
         assert "# 2026-02-24 15:23 공시 알람 결과" in content
         assert "> **기준 접수 번호:** `20260224000000`" in content
         assert "## 증설" in content
-        assert "| A | 증설 계획 | https://" in content
-        assert "| C | 다른 증설 | https://" in content
+        assert "A | 증설 계획 | https://" in content
+        assert "C | 다른 증설 | https://" in content
         assert "## 수주" in content
-        assert "| B | 수주 공시 [정정] | https://" in content
+        assert "B | 수주 공시 [정정] | https://" in content
         assert "## 공개매수" in content
         assert "(없음)" in content
         assert content.count("# 2026-02-24 15:23") == 1  # 헤더가 한 번만 있어야 함
