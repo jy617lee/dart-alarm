@@ -60,6 +60,7 @@ def test_run_second_execution_prints_and_updates(caplog: Any) -> None:
         patch("dart_api.fetch_disclosures", return_value=items),
         patch("state_store.save_state", side_effect=lambda s: saved.update(s)),
         patch("keyword_filter.datetime") as mock_dt,
+        patch("keyword_filter.result_writer.save_results"),
     ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         main.run()

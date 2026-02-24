@@ -16,7 +16,10 @@ def test_filter_no_match(caplog: pytest.LogCaptureFixture) -> None:
         {"rcept_no": "2", "corp_name": "카카오", "report_nm": "분기보고서"},
     ]
     caplog.set_level(logging.INFO)
-    with patch("keyword_filter.datetime") as mock_dt:
+    with (
+        patch("keyword_filter.datetime") as mock_dt,
+        patch("keyword_filter.result_writer.save_results"),
+    ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         keyword_filter.filter_and_print_disclosures(items)
 
@@ -30,7 +33,10 @@ def test_filter_with_match(caplog: pytest.LogCaptureFixture) -> None:
         {"rcept_no": "2", "corp_name": "카카오", "report_nm": "분기보고서"},
     ]
     caplog.set_level(logging.INFO)
-    with patch("keyword_filter.datetime") as mock_dt:
+    with (
+        patch("keyword_filter.datetime") as mock_dt,
+        patch("keyword_filter.result_writer.save_results"),
+    ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         keyword_filter.filter_and_print_disclosures(items)
 
@@ -51,7 +57,10 @@ def test_filter_with_correct_tag(caplog: pytest.LogCaptureFixture) -> None:
         },
     ]
     caplog.set_level(logging.INFO)
-    with patch("keyword_filter.datetime") as mock_dt:
+    with (
+        patch("keyword_filter.datetime") as mock_dt,
+        patch("keyword_filter.result_writer.save_results"),
+    ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         keyword_filter.filter_and_print_disclosures(items)
 
