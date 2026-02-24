@@ -4,11 +4,16 @@ from typing import Optional
 
 import dart_api
 import keyword_filter
+import logger
 import state_store
 
 
 def run() -> None:
     """단일 실행 진입점. 인프라단에서 반복 호출된다."""
+    logger.setup_logger()
+    log = logger.get_logger()
+    log.info("폴링 시작")
+
     api_key = dart_api.load_api_key()
     state = state_store.load_state()
     last_rcept_no: Optional[str] = state.get("last_rcept_no")
@@ -28,9 +33,9 @@ def run() -> None:
         if items:
             new_last = max(i["rcept_no"] for i in items)
             state_store.save_state({"last_rcept_no": new_last})
-            print(f"[INFO] 첫 실행 완료. last_rcept_no={new_last} 저장.")
+            log.info(f"첫 실행 완료. last_rcept_no={new_last} 저장.")
         else:
-            print("[INFO] 첫 실행 완료. 공시 없음.")
+            log.info("첫 실행 완료. 공시 없음.")
         return
 
     # 두 번째 실행부터: 신규 공시 출력 후 state 업데이트
@@ -39,9 +44,9 @@ def run() -> None:
     if items:
         new_last = max(i["rcept_no"] for i in items)
         state_store.save_state({"last_rcept_no": new_last})
-        print(f"[INFO] last_rcept_no={new_last} 업데이트 완료.")
+        log.info(f"last_rcept_no={new_last} 업데이트 완료.")
     else:
-        print("[INFO] 신규 공시 없음.")
+        log.info("신규 공시 없음.")
 
 
 if __name__ == "__main__":  # pragma: no cover

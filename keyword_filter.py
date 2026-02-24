@@ -3,6 +3,9 @@
 import datetime
 from typing import Any
 
+import logger
+import result_writer
+
 KEYWORDS = ["증설", "수주", "공개매수"]
 
 
@@ -17,14 +20,17 @@ def filter_and_print_disclosures(items: list[dict[str, Any]]) -> None:
         if matched_kws:
             matched.append((item, matched_kws))
 
-    now_str = datetime.datetime.now().strftime("%H:%M:%S")
+    now = datetime.datetime.now()
+    today = now.date()
     total_count = len(items)
 
+    log = logger.get_logger()
+
     if not matched:
-        print(f"[{now_str}] 폴링 완료 - 신규 {total_count}건 중 매칭 없음")
+        log.info(f"폴링 완료 - 신규 {total_count}건 중 매칭 없음")
         return
 
-    print(f"[{now_str}] 신규 {total_count}건 중 키워드 매칭 {len(matched)}건")
+    log.info(f"신규 {total_count}건 중 키워드 매칭 {len(matched)}건")
 
     for i, (item, kws) in enumerate(matched, 1):
         corp_name = item.get("corp_name", "")
@@ -38,4 +44,7 @@ def filter_and_print_disclosures(items: list[dict[str, Any]]) -> None:
         kw_str = ", ".join(kws)
         url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rcept_no}"
 
-        print(f"{i}. {corp_name} | {report_nm} | 매칭키워드: {kw_str} | {url}")
+        log.info(f"{i}. {corp_name} | {report_nm} | 매칭키워드: {kw_str} | {url}")
+
+    # 마크다운 파일에 매칭 결과 추가 저장
+    result_writer.save_results(matched, today, now)

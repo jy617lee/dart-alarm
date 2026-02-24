@@ -1,5 +1,6 @@
 """main.run() 동작 테스트."""
 
+import logging
 from typing import Any
 from unittest.mock import patch
 
@@ -25,8 +26,9 @@ def test_run_first_execution_saves_state(tmp_path) -> None:  # type: ignore[no-u
     assert saved.get("last_rcept_no") == "20260224000005"
 
 
-def test_run_first_execution_empty_disclosures(capsys) -> None:  # type: ignore[no-untyped-def]
+def test_run_first_execution_empty_disclosures(caplog: Any) -> None:
     """첫 실행(last_rcept_no=None)이고 공시가 없으면 state를 저장하지 않고 종료한다."""
+    caplog.set_level(logging.INFO)
     saved: dict[str, Any] = {}
 
     with (
@@ -37,13 +39,13 @@ def test_run_first_execution_empty_disclosures(capsys) -> None:  # type: ignore[
     ):
         main.run()
 
-    captured = capsys.readouterr().out
-    assert "공시 없음" in captured
+    assert "공시 없음" in caplog.text
     assert "last_rcept_no" not in saved
 
 
-def test_run_second_execution_prints_and_updates(capsys) -> None:  # type: ignore[no-untyped-def]
+def test_run_second_execution_prints_and_updates(caplog: Any) -> None:
     """두 번째 실행이면 신규 공시를 출력하고 state를 업데이트한다."""
+    caplog.set_level(logging.INFO)
     items = [
         {"rcept_no": "20260224000010", "corp_name": "삼성", "report_nm": "시설 증설"},
     ]
@@ -62,9 +64,7 @@ def test_run_second_execution_prints_and_updates(capsys) -> None:  # type: ignor
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         main.run()
 
-    captured = capsys.readouterr().out
-    assert "삼성" in captured
-    assert "시설 증설" in captured
+    assert "시설 증설" in caplog.text
     assert saved.get("last_rcept_no") == "20260224000010"
 
 

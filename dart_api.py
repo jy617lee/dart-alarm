@@ -7,6 +7,8 @@ from typing import Any, Optional
 import requests
 from dotenv import load_dotenv
 
+import logger
+
 # ---------------------------------------------------------------------------
 # 상수
 # ---------------------------------------------------------------------------
@@ -61,6 +63,9 @@ def _fetch_page(api_key: str, bgn_date: str, page_no: int) -> list[dict[str, Any
 
         if response.status_code == HTTP_TOO_MANY_REQUESTS:
             wait = BACKOFF_BASE_SECONDS * (2**backoff_exponent)
+            logger.get_logger().warning(
+                f"429 Too Many Requests (page {page_no}). {wait}초 후 재시도..."
+            )
             time.sleep(wait)
             backoff_exponent += 1
             continue
@@ -71,6 +76,10 @@ def _fetch_page(api_key: str, bgn_date: str, page_no: int) -> list[dict[str, Any
             return result
 
         if attempt < MAX_RETRIES:
+            logger.get_logger().warning(
+                f"API 오류, {RETRY_INTERVAL_SECONDS}초 후 재시도 "
+                f"({attempt}/{MAX_RETRIES})"
+            )
             time.sleep(RETRY_INTERVAL_SECONDS)
 
     return []
@@ -95,7 +104,7 @@ def fetch_disclosures(
 
     while True:
         items = _fetch_page(api_key, bgn_date, page_no)
-        print(f"[INFO] page={page_no}, 응답 {len(items)}건")
+        logger.get_logger().info(f"API 호출: page={page_no}, 응답={len(items)}건")
 
         if last_rcept_no is not None:
             new_items = [i for i in items if i["rcept_no"] > last_rcept_no]
