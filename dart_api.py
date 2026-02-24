@@ -42,9 +42,7 @@ def load_api_key() -> str:
 # ---------------------------------------------------------------------------
 
 
-def _fetch_page(
-    api_key: str, bgn_date: str, page_no: int
-) -> list[dict[str, Any]]:
+def _fetch_page(api_key: str, bgn_date: str, page_no: int) -> list[dict[str, Any]]:
     """DART API에서 단일 페이지를 조회하여 반환한다.
 
     - 일반 오류(status != 000): 최대 MAX_RETRIES회 재시도, 간격 RETRY_INTERVAL_SECONDS초

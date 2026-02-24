@@ -50,7 +50,10 @@ def test_run_second_execution_prints_and_updates(capsys) -> None:  # type: ignor
 
     with (
         patch("dart_api.load_api_key", return_value="test-key"),
-        patch("state_store.load_state", return_value={"last_rcept_no": "20260224000005"}),
+        patch(
+            "state_store.load_state",
+            return_value={"last_rcept_no": "20260224000005"},
+        ),
         patch("dart_api.fetch_disclosures", return_value=items),
         patch("state_store.save_state", side_effect=lambda s: saved.update(s)),
     ):
@@ -67,7 +70,10 @@ def test_run_no_new_disclosures_does_not_update_state() -> None:
 
     with (
         patch("dart_api.load_api_key", return_value="test-key"),
-        patch("state_store.load_state", return_value={"last_rcept_no": "20260224000005"}),
+        patch(
+            "state_store.load_state",
+            return_value={"last_rcept_no": "20260224000005"},
+        ),
         patch("dart_api.fetch_disclosures", return_value=[]),
         patch("state_store.save_state", side_effect=lambda s: saved.append(s)),
     ):

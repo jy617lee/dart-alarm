@@ -22,7 +22,10 @@ def test_load_api_key_raises_when_missing(monkeypatch: pytest.MonkeyPatch) -> No
     """환경변수가 없으면 RuntimeError를 즉시 발생시킨다."""
     monkeypatch.delenv("DART_API_KEY", raising=False)
     # load_dotenv가 실제 .env를 읽어서 다시 키를 채우지 않도록 모킹
-    with patch("dart_api.load_dotenv"), pytest.raises(RuntimeError, match="DART_API_KEY"):
+    with (
+        patch("dart_api.load_dotenv"),
+        pytest.raises(RuntimeError, match="DART_API_KEY"),
+    ):
         dart_api.load_api_key()
 
 
@@ -43,7 +46,11 @@ def test_fetch_page_returns_list_on_success() -> None:
     payload: dict[str, Any] = {
         "status": "000",
         "list": [
-            {"rcept_no": "20260224000001", "corp_name": "테스트", "report_nm": "보고서"},
+            {
+                "rcept_no": "20260224000001",
+                "corp_name": "테스트",
+                "report_nm": "보고서",
+            },
         ],
     }
     with patch("dart_api.requests.get", return_value=_make_response(200, payload)):
@@ -153,9 +160,7 @@ def test_fetch_disclosures_fetches_multiple_pages() -> None:
     page2 = _make_items(["101"])  # 1건
 
     with patch("dart_api._fetch_page", side_effect=[page1, page2]) as mock_page:
-        result = dart_api.fetch_disclosures(
-            "key", "20260224", last_rcept_no=None
-        )
+        result = dart_api.fetch_disclosures("key", "20260224", last_rcept_no=None)
 
     assert len(result) == dart_api.PAGE_SIZE + 1
     assert mock_page.call_count == 2

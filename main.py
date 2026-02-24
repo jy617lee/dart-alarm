@@ -17,6 +17,7 @@ def run() -> None:
         bgn_date = last_rcept_no[:8]
     else:
         import datetime
+
         bgn_date = datetime.date.today().strftime("%Y%m%d")
 
     items = dart_api.fetch_disclosures(api_key, bgn_date, last_rcept_no)

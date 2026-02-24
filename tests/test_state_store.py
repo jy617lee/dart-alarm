@@ -1,14 +1,13 @@
 """state_store 모듈 테스트."""
 
-import json
-from pathlib import Path
-
 import pytest
 
 import state_store
 
 
-def test_load_state_returns_empty_when_no_file(tmp_path: pytest.TempPathFactory) -> None:
+def test_load_state_returns_empty_when_no_file(
+    tmp_path: pytest.TempPathFactory,
+) -> None:
     """state.json이 없으면 빈 dict를 반환한다."""
     original = state_store.STATE_FILE
     state_store.STATE_FILE = tmp_path / "state.json"  # type: ignore[assignment]
