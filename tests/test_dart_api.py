@@ -164,28 +164,3 @@ def test_fetch_disclosures_fetches_multiple_pages() -> None:
 
     assert len(result) == dart_api.PAGE_SIZE + 1
     assert mock_page.call_count == 2
-
-
-# ---------------------------------------------------------------------------
-# print_disclosures
-# ---------------------------------------------------------------------------
-
-
-def test_print_disclosures_outputs_fields(capsys: pytest.CaptureFixture[str]) -> None:
-    """rcept_no, corp_name, report_nm이 출력에 포함되어야 한다."""
-    items: list[dict[str, Any]] = [
-        {"rcept_no": "20260224001", "corp_name": "삼성전자", "report_nm": "분기보고서"}
-    ]
-    dart_api.print_disclosures(items)
-    captured = capsys.readouterr().out
-    assert "20260224001" in captured
-    assert "삼성전자" in captured
-    assert "분기보고서" in captured
-
-
-def test_print_disclosures_empty_prints_nothing(
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    """빈 목록이면 아무것도 출력하지 않는다."""
-    dart_api.print_disclosures([])
-    assert capsys.readouterr().out == ""

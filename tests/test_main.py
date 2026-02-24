@@ -1,5 +1,6 @@
 """main.run() 동작 테스트."""
 
+from typing import Any
 from unittest.mock import patch
 
 import main
@@ -11,7 +12,7 @@ def test_run_first_execution_saves_state(tmp_path) -> None:  # type: ignore[no-u
         {"rcept_no": "20260224000002", "corp_name": "A", "report_nm": "B"},
         {"rcept_no": "20260224000005", "corp_name": "C", "report_nm": "D"},
     ]
-    saved: dict = {}
+    saved: dict[str, Any] = {}
 
     with (
         patch("dart_api.load_api_key", return_value="test-key"),
@@ -26,7 +27,7 @@ def test_run_first_execution_saves_state(tmp_path) -> None:  # type: ignore[no-u
 
 def test_run_first_execution_empty_disclosures(capsys) -> None:  # type: ignore[no-untyped-def]
     """첫 실행(last_rcept_no=None)이고 공시가 없으면 state를 저장하지 않고 종료한다."""
-    saved: dict = {}
+    saved: dict[str, Any] = {}
 
     with (
         patch("dart_api.load_api_key", return_value="test-key"),
@@ -44,9 +45,9 @@ def test_run_first_execution_empty_disclosures(capsys) -> None:  # type: ignore[
 def test_run_second_execution_prints_and_updates(capsys) -> None:  # type: ignore[no-untyped-def]
     """두 번째 실행이면 신규 공시를 출력하고 state를 업데이트한다."""
     items = [
-        {"rcept_no": "20260224000010", "corp_name": "삼성", "report_nm": "분기보고서"},
+        {"rcept_no": "20260224000010", "corp_name": "삼성", "report_nm": "시설 증설"},
     ]
-    saved: dict = {}
+    saved: dict[str, Any] = {}
 
     with (
         patch("dart_api.load_api_key", return_value="test-key"),
@@ -56,17 +57,20 @@ def test_run_second_execution_prints_and_updates(capsys) -> None:  # type: ignor
         ),
         patch("dart_api.fetch_disclosures", return_value=items),
         patch("state_store.save_state", side_effect=lambda s: saved.update(s)),
+        patch("keyword_filter.datetime") as mock_dt,
     ):
+        mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         main.run()
 
     captured = capsys.readouterr().out
     assert "삼성" in captured
+    assert "시설 증설" in captured
     assert saved.get("last_rcept_no") == "20260224000010"
 
 
 def test_run_no_new_disclosures_does_not_update_state() -> None:
     """신규 공시가 없으면 state를 업데이트하지 않는다."""
-    saved: list = []
+    saved: list[dict[str, Any]] = []
 
     with (
         patch("dart_api.load_api_key", return_value="test-key"),

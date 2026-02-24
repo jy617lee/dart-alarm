@@ -114,14 +114,3 @@ def fetch_disclosures(
         page_no += 1
 
     return all_items
-
-
-# ---------------------------------------------------------------------------
-# 출력
-# ---------------------------------------------------------------------------
-
-
-def print_disclosures(items: list[dict[str, Any]]) -> None:
-    """공시 목록을 콘솔에 출력한다."""
-    for item in items:
-        print(f"[{item['rcept_no']}] {item['corp_name']} - {item['report_nm']}")
