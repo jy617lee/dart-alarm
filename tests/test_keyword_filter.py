@@ -36,6 +36,7 @@ def test_filter_with_match(caplog: pytest.LogCaptureFixture) -> None:
     with (
         patch("keyword_filter.datetime") as mock_dt,
         patch("keyword_filter.result_writer.save_results"),
+        patch("keyword_filter.telegram_sender.send_alert"),
     ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         keyword_filter.filter_and_print_disclosures(items, "20260224000000")
@@ -60,6 +61,7 @@ def test_filter_with_correct_tag(caplog: pytest.LogCaptureFixture) -> None:
     with (
         patch("keyword_filter.datetime") as mock_dt,
         patch("keyword_filter.result_writer.save_results"),
+        patch("keyword_filter.telegram_sender.send_alert"),
     ):
         mock_dt.datetime.now.return_value.strftime.return_value = "12:00:00"
         keyword_filter.filter_and_print_disclosures(items, "20260224000000")

@@ -5,6 +5,7 @@ from typing import Any
 
 import logger
 import result_writer
+import telegram_sender
 
 KEYWORDS = ["증설", "수주", "공개매수", "자사주매입", "흑자전환", "임상"]
 
@@ -50,3 +51,6 @@ def filter_and_print_disclosures(
 
     # 마크다운 파일에 매칭 결과 추가 저장
     result_writer.save_results(matched, today, now, last_rcept_no)
+
+    # 텔레그램 알람 전송
+    telegram_sender.send_alert(matched)
