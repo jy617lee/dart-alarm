@@ -3,6 +3,7 @@
 from typing import Optional
 
 import dart_api
+import keyword_filter
 import state_store
 
 
@@ -33,7 +34,7 @@ def run() -> None:
         return
 
     # 두 번째 실행부터: 신규 공시 출력 후 state 업데이트
-    dart_api.print_disclosures(items)
+    keyword_filter.filter_and_print_disclosures(items)
 
     if items:
         new_last = max(i["rcept_no"] for i in items)
