@@ -1,10 +1,12 @@
 """DART OpenAPI 폴링 스크립트 - 신규 공시를 필터링하여 콘솔에 출력한다."""
 
+import datetime
 from typing import Optional
 
 import dart_api
 import keyword_filter
 import logger
+import result_writer
 import state_store
 
 
@@ -19,15 +21,29 @@ def run() -> None:
         state = state_store.load_state()
         last_rcept_no: Optional[str] = state.get("last_rcept_no")
 
+        # last_rcept_no 유효성 검증: 14자리 YYYYMMDDNNNNNN 형식
+        if last_rcept_no is not None and (
+            len(last_rcept_no) != 14 or not last_rcept_no.isdigit()
+        ):
+            log.warning(
+                f"last_rcept_no 형식 이상 ({last_rcept_no!r}) → None으로 초기화"
+            )
+            last_rcept_no = None
+
         # bgn_date: last_rcept_no 앞 8자리(YYYYMMDD), 없으면 오늘
         if last_rcept_no:
             bgn_date = last_rcept_no[:8]
         else:
-            import datetime
-
             bgn_date = datetime.date.today().strftime("%Y%m%d")
 
-        items = dart_api.fetch_disclosures(api_key, bgn_date, last_rcept_no)
+        now = datetime.datetime.now()
+
+        try:
+            items = dart_api.fetch_disclosures(api_key, bgn_date, last_rcept_no)
+        except RuntimeError as api_err:
+            log.error(f"API 호출 실패: {api_err}")
+            result_writer.save_error_result(now, str(api_err))
+            return
 
         if last_rcept_no is None:
             # 첫 실행: max(rcept_no)를 저장하고 종료 (알람 없음)
