@@ -42,10 +42,6 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: state.json 업데이트 [skip ci]"
           git push
 
-      - name: Upload results as artifact
+      - name: Print results
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: results-${{ github.run_id }}
-          path: results/
-          if-no-files-found: ignore
+        run: cat results/*.md 2>/dev/null || echo "결과 파일 없음"
