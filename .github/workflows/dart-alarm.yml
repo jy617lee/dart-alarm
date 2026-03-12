@@ -1,0 +1,43 @@
+name: DART 공시 알람 자동 실행
+
+on:
+  schedule:
+    # KST 07:00 = UTC 22:00 (전날), KST 19:00 = UTC 10:00
+    - cron: "0 22 * * *"
+    - cron: "0 10 * * *"
+  workflow_dispatch: # 수동 실행 허용
+
+jobs:
+  run-dart-alarm:
+    name: "공시 폴링 · 텔레그램 알람"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # state.json 커밋을 위해 필요
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run dart-alarm script
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py
+
+      - name: Commit updated state.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          git diff --cached --quiet || git commit -m "chore: state.json 업데이트 [skip ci]"
+          git push
