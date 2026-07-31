@@ -1,11 +1,12 @@
 name: DART 공시 알람 자동 실행
 
 on:
-  schedule:
-    # KST 07:00 = UTC 22:00 (전날), KST 19:00 = UTC 10:00
-    - cron: "0 22 * * *"
-    - cron: "0 10 * * *"
-  workflow_dispatch: # 수동 실행 허용
+  # 자동 스케줄 실행 비활성화 (자동알람 OFF). 필요 시 아래 schedule 블록을 복구하세요.
+  # schedule:
+  #   # KST 07:00 = UTC 22:00 (전날), KST 19:00 = UTC 10:00
+  #   - cron: "0 22 * * *"
+  #   - cron: "0 10 * * *"
+  workflow_dispatch: # 수동 실행만 허용
 
 jobs:
   run-dart-alarm:
